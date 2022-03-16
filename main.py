@@ -16,15 +16,20 @@ async def root():
     return {"message": "Hello World"}
 
 
-@app.get("/{jobs}")
-async def read_item(jobs):
-    return scrapy.linkedin_worker('junior-python-jobs')
+# @app.get("/{jobs}")
+# async def read_item(jobs):
+#     return scrapy.linkedin_worker('junior-python-jobs')
 
 
 @app.get("/linkedin/{item_name}")
 async def read_item(item_name: str, item_name2: Optional[str] = None, item_name3: Optional[str] = None):
     # junior-python-jobs
     return scrapy.custom_linkedin_worker(item_name, item_name2, item_name3)
+
+
+@app.get("/nofluffjobs/{item_name}")
+async def read_item():
+    return scrapy.no_fluff_jobs_worker()
 
 
 if __name__ == "__main__":
