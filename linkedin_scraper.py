@@ -44,24 +44,19 @@ class Scraper:
         urllist = []
 
         jobs = r.html.find('div.list-container.ng-star-inserted')
-        print(jobs)
 
         for j in jobs:
             # a for hrefs
             items = j.find('a')
             # elements for text
-            names = j.find('nfj-posting-item-title.align-items-lg-center')
-            # print(hrefs)
+            for idx, elem in enumerate(items):
+                name = elem.text.split('\n')
+                if idx % 2 == 0:
+                    href = 'https://nofluffjobs.com' + elem.attrs['href']
+                    item = {'name': name[0], 'href': href}
+                    urllist.append(item)
 
-            for name in names:
-                index = names.index(name)
-                item = {'name': names[index].text, 'href': items[index].absolute_links}
-                urllist.append(item)
-
-
-
-
-
+        print(urllist)
         return urllist
 
 
