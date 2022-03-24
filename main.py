@@ -1,7 +1,5 @@
 from typing import Optional
 
-from enum import Enum
-
 import uvicorn
 from fastapi import FastAPI, HTTPException
 
@@ -22,14 +20,14 @@ async def root():
 
 
 @app.get("/linkedin/{item_name}")
-async def read_item(item_name: str, item_name2: Optional[str] = None, item_name3: Optional[str] = None):
+async def read_item(tag: str, tag2: Optional[str] = None, tag3: Optional[str] = None, tag4: Optional[str] = None):
     # junior-python-jobs
-    return scrapy.custom_linkedin_worker(item_name, item_name2, item_name3)
+    return scrapy.custom_linkedin_worker(tag, tag2, tag3, tag4)
 
 
 @app.get("/nofluffjobs/{item_name}")
-async def read_item():
-    return scrapy.no_fluff_jobs_worker()
+async def read_item(technology: str, seniority: Optional[str] = None, second_tech: Optional[str] = None):
+    return scrapy.no_fluff_jobs_worker(technology, seniority, second_tech)
 
 
 if __name__ == "__main__":

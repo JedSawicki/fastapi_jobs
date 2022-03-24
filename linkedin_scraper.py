@@ -8,8 +8,8 @@ class Scraper:
         self.domain = f'https://pl.linkedin.com/jobs/'
         self.linkedin_items_list = []
 
-    def custom_linkedin_worker(self, key1: str, key2: Optional[str], key3: Optional[str]) -> object:
-        keys_array = [key1, key2, key3]
+    def custom_linkedin_worker(self, key1: str, key2: Optional[str], key3: Optional[str], key4: Optional[str]) -> object:
+        keys_array = [key1, key2, key3, key4]
         experimental_domain = f'https://pl.linkedin.com/jobs/search?keywords={key1}'
         for key in keys_array[1:]:
             if key is not None:
@@ -34,15 +34,18 @@ class Scraper:
                 }
                 urllist.append(item)
 
-        print(urllist)
         return urllist
 
-    def no_fluff_jobs_worker(self) -> object:
-        url = f'https://nofluffjobs.com/pl/praca-it/python?criteria=seniority%3Djunior&page=2'
+    def no_fluff_jobs_worker(self, technology: str, seniority: Optional[str], second_tech: Optional[str]) -> object:
+        # url = f'https://nofluffjobs.com/pl/praca-it/python?criteria=seniority%3Djunior&page=2'
+        url = f'https://nofluffjobs.com/pl/praca-it/{technology}?criteria=seniority%3D{seniority}&page=2'
+        if second_tech is not None:
+            url = f'https://nofluffjobs.com/pl/praca-it/{technology}?criteria=seniority%3D{seniority}%20requirement%3D{second_tech}&page=2'
+
+        print(url)
         s = HTMLSession()
         r = s.get(str(url))
         urllist = []
-
         jobs = r.html.find('div.list-container.ng-star-inserted')
 
         for j in jobs:
@@ -51,15 +54,14 @@ class Scraper:
             # elements for text
             for idx, elem in enumerate(items):
                 name = elem.text.split('\n')
+                print(name)
                 if idx % 2 == 0:
                     href = 'https://nofluffjobs.com' + elem.attrs['href']
-                    item = {'name': name[0], 'href': href}
+                    item = {'name': name[0], 'company': name[1], 'href': href}
                     urllist.append(item)
-
-        print(urllist)
         return urllist
 
 
 jobs = Scraper()
 
-jobs.no_fluff_jobs_worker()
+# jobs.no_fluff_jobs_worker()
