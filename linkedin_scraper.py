@@ -38,27 +38,33 @@ class Scraper:
 
     def no_fluff_jobs_worker(self, technology: str, seniority: Optional[str], second_tech: Optional[str]) -> object:
         # url = f'https://nofluffjobs.com/pl/praca-it/python?criteria=seniority%3Djunior&page=2'
-        url = f'https://nofluffjobs.com/pl/praca-it/{technology}?criteria=seniority%3D{seniority}&page=2'
+        url = f'https://nofluffjobs.com/pl/praca-it/{technology}?page=2'
+        if seniority is not None:
+            url = f'https://nofluffjobs.com/pl/praca-it/{technology}?criteria=seniority%3D{seniority}&page=2'
         if second_tech is not None:
             url = f'https://nofluffjobs.com/pl/praca-it/{technology}?criteria=seniority%3D{seniority}%20requirement%3D{second_tech}&page=2'
-
+        if second_tech is not None and seniority is None:
+            url = f'https://nofluffjobs.com/pl/praca-it/{technology}?page=1&criteria=requirement%3D{second_tech}'
+                    
         print(url)
         s = HTMLSession()
         r = s.get(str(url))
         urllist = []
-        jobs = r.html.find('div.list-container.ng-star-inserted')
+        try:
+            jobs = r.html.find('div.list-container.ng-star-inserted')
 
-        for j in jobs:
-            # a for hrefs
-            items = j.find('a')
-            # elements for text
-            for idx, elem in enumerate(items):
-                name = elem.text.split('\n')
-                print(name)
-                if idx % 2 == 0:
-                    href = 'https://nofluffjobs.com' + elem.attrs['href']
-                    item = {'name': name[0], 'company': name[1], 'href': href}
-                    urllist.append(item)
+            for j in jobs:
+                # a for hrefs
+                items = j.find('a')
+                # elements for text
+                for idx, elem in enumerate(items):
+                    name = elem.text.split('\n')
+                    if idx % 2 == 0:
+                        href = 'https://nofluffjobs.com' + elem.attrs['href']
+                        item = {'name': name[0], 'company': name[1], 'href': href}
+                        urllist.append(item)
+        except IndexError:
+            print('No text found')
         return urllist
 
 
