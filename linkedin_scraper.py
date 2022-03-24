@@ -8,7 +8,7 @@ class Scraper:
         self.domain = f'https://pl.linkedin.com/jobs/'
         self.linkedin_items_list = []
 
-    def custom_linkedin_worker(self, key1: str, key2: Optional[str], key3: Optional[str], key4: Optional[str]) -> object:
+    def linkedin_worker(self, key1: str, key2: Optional[str], key3: Optional[str], key4: Optional[str]) -> object:
         keys_array = [key1, key2, key3, key4]
         experimental_domain = f'https://pl.linkedin.com/jobs/search?keywords={key1}'
         for key in keys_array[1:]:
@@ -40,9 +40,9 @@ class Scraper:
         # url = f'https://nofluffjobs.com/pl/praca-it/python?criteria=seniority%3Djunior&page=2'
         url = f'https://nofluffjobs.com/pl/praca-it/{technology}?page=2'
         if seniority is not None:
-            url = f'https://nofluffjobs.com/pl/praca-it/{technology}?criteria=seniority%3D{seniority}&page=2'
+            url = f'https://nofluffjobs.com/pl/praca-it/{technology}?criteria=seniority%3D{seniority}&page=1'
         if second_tech is not None:
-            url = f'https://nofluffjobs.com/pl/praca-it/{technology}?criteria=seniority%3D{seniority}%20requirement%3D{second_tech}&page=2'
+            url = f'https://nofluffjobs.com/pl/praca-it/{technology}?criteria=seniority%3D{seniority}%20requirement%3D{second_tech}&page=1'
         if second_tech is not None and seniority is None:
             url = f'https://nofluffjobs.com/pl/praca-it/{technology}?page=1&criteria=requirement%3D{second_tech}'
                     
