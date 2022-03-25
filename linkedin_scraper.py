@@ -1,6 +1,7 @@
 from typing import Optional
 
 from requests_html import HTMLSession
+from models import Offer
 
 
 class Scraper:
@@ -28,23 +29,23 @@ class Scraper:
                 index = names.index(name)
                 item = {
                     'name': j.find('span.screen-reader-text')[index].text.strip(),
-                    'href': j.find('a.base-card__full-link')[index].absolute_links,
                     'company_name': j.find('h4.base-search-card__subtitle')[index].text.strip(),
+                    'href': j.find('a.base-card__full-link')[index].absolute_links,
                     'location': j.find('span.job-search-card__location')[index].text.strip()
                 }
                 urllist.append(item)
 
         return urllist
 
-    def no_fluff_jobs_worker(self, technology: str, seniority: Optional[str], second_tech: Optional[str]) -> object:
+    def no_fluff_jobs_worker(self, technology: str, seniority: Optional[str], second_tech: Optional[str], page: Optional[int] = 0) -> object:
         # url = f'https://nofluffjobs.com/pl/praca-it/python?criteria=seniority%3Djunior&page=2'
-        url = f'https://nofluffjobs.com/pl/praca-it/{technology}?page=2'
+        url = f'https://nofluffjobs.com/pl/praca-it/{technology}?page={page}'
         if seniority is not None:
-            url = f'https://nofluffjobs.com/pl/praca-it/{technology}?criteria=seniority%3D{seniority}&page=1'
+            url = f'https://nofluffjobs.com/pl/praca-it/{technology}?criteria=seniority%3D{seniority}&page={page}'
         if second_tech is not None:
-            url = f'https://nofluffjobs.com/pl/praca-it/{technology}?criteria=seniority%3D{seniority}%20requirement%3D{second_tech}&page=1'
+            url = f'https://nofluffjobs.com/pl/praca-it/{technology}?criteria=seniority%3D{seniority}%20requirement%3D{second_tech}&page={page}'
         if second_tech is not None and seniority is None:
-            url = f'https://nofluffjobs.com/pl/praca-it/{technology}?page=1&criteria=requirement%3D{second_tech}'
+            url = f'https://nofluffjobs.com/pl/praca-it/{technology}?page={page}&criteria=requirement%3D{second_tech}'
                     
         print(url)
         s = HTMLSession()
