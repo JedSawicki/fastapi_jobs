@@ -1,7 +1,6 @@
 from typing import Optional
 
 from requests_html import HTMLSession
-from models import Offer
 
 
 class Scraper:
@@ -15,7 +14,7 @@ class Scraper:
         for key in keys_array[1:]:
             if key is not None:
                 experimental_domain = experimental_domain + f'%20{key}'
-                print(experimental_domain)
+        print(experimental_domain)
         s = HTMLSession()
         r = s.get(str(experimental_domain))
         urllist = []
