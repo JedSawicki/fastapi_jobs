@@ -19,9 +19,10 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 db: List[Offer] = []
 
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
+@app.get("/", response_class=HTMLResponse)
+async def root(request: Request):
+    
+    return templates.TemplateResponse('index.html', {"request": request})
 
 
 @app.get("/get/offers")
@@ -44,27 +45,20 @@ async def fetch_offers():
 
 @app.get("/form", response_class=HTMLResponse)
 async def get_form(request: Request):
-    return templates.TemplateResponse('item.html', {"request": request})
+    return templates.TemplateResponse('index.html', {"request": request})
 
 
 @app.post("/form", response_class=HTMLResponse)
 async def post_from(request: Request, key_words: str = Form(...)):
-    offers = []
-    print(f'technology: {key_words}')
     key_list = []
-    res = len(key_words.split())
     keys = key_words.split()
-    print(keys[0])
     for key in keys:
         if key is not None:
             key_list.append(key)
-        else:
-            key_list.append(None)
     while len(key_list) != 4:
         key_list.append(None)
-    print(key_list)
     try:
-        linkedin_offers = scrapy.linkedin_worker(key_list[0], key_list[1], key_list[2], None)
+        linkedin_offers = scrapy.linkedin_worker(key_list[0], key_list[1], key_list[2])
         nofluff_offers = scrapy.no_fluff_jobs_worker(key_list[0], key_list[1], key_list[2])
         offers = linkedin_offers + nofluff_offers
         random.shuffle(offers)
@@ -73,7 +67,7 @@ async def post_from(request: Request, key_words: str = Form(...)):
         print('Index ERROR')
        
     
-    return templates.TemplateResponse('item.html', {"request": request, "offers": offers}  )
+    return templates.TemplateResponse('index.html', {"request": request, "offers": offers}  )
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)

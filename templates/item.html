@@ -4,14 +4,16 @@
         <link href="{{ url_for('static', path='/styles.css') }}" rel="stylesheet">
     </head>
     <body>
-        <h1>Basic White Form</h1>
+        <h1>Look for IT Jobs:</h1>
         <form method="POST" enctype="multipart/form-data">
-            <label for="key_words">Username:</label><br>
+            <label for="key_words">Key words:</label><br>
             <input type="text" name="key_words"><br>
             <input type="submit" value="Submit">
         </form>
         {% for offer in offers %}
             <h2>{{offer.name}}</h2>
+            <h3>{{offer.href}}</h3>
+            <h3>{{offer.company_name}}</h3>
         {% endfor %}
     </body>
 </html>
