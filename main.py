@@ -27,11 +27,11 @@ async def root(request: Request):
 
 @app.get("/get/offers")
 async def read_items(request: Request, technology: str, seniority: Optional[str] = None, second_tech: Optional[str] = None):
-    linkedin_offers = scrapy.linkedin_worker(technology, seniority, second_tech, None)
+    linkedin_offers = scrapy.linkedin_worker(technology, seniority, second_tech)
     nofluff_offers = scrapy.no_fluff_jobs_worker(technology, seniority, second_tech)
-    offers = linkedin_offers + nofluff_offers
+    indeed_offers = scrapy.indeed_jobs_worker(technology, seniority, second_tech)
+    offers = indeed_offers + nofluff_offers + linkedin_offers
     random.shuffle(offers)
-    print(offers)
     
     for elem in offers:
         db.append(elem)
@@ -60,7 +60,8 @@ async def post_from(request: Request, key_words: str = Form(...)):
     try:
         linkedin_offers = scrapy.linkedin_worker(key_list[0], key_list[1], key_list[2])
         nofluff_offers = scrapy.no_fluff_jobs_worker(key_list[0], key_list[1], key_list[2])
-        offers = linkedin_offers + nofluff_offers
+        indeed_offers = scrapy.indeed_jobs_worker(key_list[0], key_list[1], key_list[2])
+        offers = indeed_offers + nofluff_offers + linkedin_offers
         random.shuffle(offers)
         
     except IndexError:

@@ -69,6 +69,34 @@ class Scraper:
         except IndexError:
             print('No text found')
         return urllist
+    
+    def indeed_jobs_worker(self, key1: str, key2: Optional[str], key3: Optional[str]) -> object:
+        keys_array = [key1, key2, key3]
+        experimental_domain = f'https://pl.indeed.com/jobs?q={key1}'
+        for key in keys_array[1:]:
+            if key is not None:
+                experimental_domain = experimental_domain + f'%20{key}'
+        print(experimental_domain)
+        s = HTMLSession()
+        r = s.get(str(experimental_domain))
+        urllist = []
+
+        try:
+            jobs = r.html.find('div.mosaic-zone')
+
+            for j in jobs:
+                # a for hrefs
+                items = j.find('a.tapItem')
+                # elements for text
+                for idx, elem in enumerate(items):
+                    href = 'https://pl.indeed.com' + elem.attrs['href']
+                    name = j.find('h2.jobTitle')[idx].text.strip()
+                    item = {'name': name, 'company_name': None, 'href': href, 'offer_root': 'Indeed'}
+                    urllist.append(item)
+        except IndexError:
+            print('No text found')
+        return urllist
+        
 
 
 jobs = Scraper()
