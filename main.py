@@ -45,7 +45,7 @@ async def fetch_offers():
 
 @app.get("/form", response_class=HTMLResponse)
 async def get_form(request: Request):
-    return templates.TemplateResponse('index.html', {"request": request})
+    return templates.TemplateResponse('item.html', {"request": request})
 
 
 @app.post("/form", response_class=HTMLResponse)
@@ -65,9 +65,10 @@ async def post_from(request: Request, key_words: str = Form(...)):
         
     except IndexError:
         print('Index ERROR')
+        raise HTTPException(status_code=404, detail="Items not found")
        
     
-    return templates.TemplateResponse('index.html', {"request": request, "offers": offers}  )
+    return templates.TemplateResponse('item.html', {"request": request, "offers": offers}  )
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)

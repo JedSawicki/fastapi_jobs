@@ -22,8 +22,9 @@
   <body>
     
 <main>
-  <div class="container py-4">
-    <header class="pb-3 mb-4 border-bottom">
+  <!-- Nav -->
+  <nav class="navbar navbar-light bg-light">
+    <div class="container-fluid">
       <a href="/" class="d-flex align-items-center text-dark text-decoration-none">
           <div class="fs4 mb-3">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cloud-arrow-down-fill" viewBox="0 0 16 16">
@@ -32,36 +33,25 @@
         <span class="fs-4">Job Finder</span>
         </div>
       </a>
-    </header>
-
-    <div class="p-5 mb-4 bg-light rounded-3">
-      <div class="container-fluid py-5">
-        <h1 class="display-5 fw-bold">Search for job</h1>
-        <p class="col-md-8 fs-4">Using a form, insert up to 3 keywords for your dream job, good luck!</p>
-        <form method="POST" enctype="multipart/form-data">
-            <label for="key_words">Key words:</label><br>
-            <input type="text" name="key_words"><br>
-            <input type="submit" value="Submit">
-        </form>
-        <div class="list-group mt-4">
-            {% for offer in offers %}
-            <a href="{{offer.href}}" class="list-group-item list-group-item-action">
-              <div class="d-flex w-100 justify-content-between">
-                <h5 class="mb-1">{{offer.name}}</h5>
-                <small class="text-muted">{{offer.offer_root}}</small>
-              </div>
-              <p class="mb-1">{{offer.company_name}}</p>
-              <small class="text-muted">{{offer.location}}</small>
-            </a>
-            {% endfor %}
-        </div>
     </div>
-
-    
+  </nav>
+  <!-- Container -->
+  <div class="container-fluid ">
+    <div class="container p-5 mb-4 rounded-3">
+        <h1 class="display-5 fw-bold">Search for job</h1>
+        <p class="col-md-8 fs-4">This is the API you've dreamed of! Using a form, insert up to 3 keywords of your dream job, good luck! <a class="btn btn-success" href="#" role="button">Try the Scraper!</a></p>
+        
+        <img class="img-fluid" src="{{ url_for('static', path='images/search2.gif') }}" alt="">
+        
+      
+    </div>
     <footer class="pt-3 mt-4 text-muted border-top">
-      &copy; 2022
+      &copy; Jedrzej Sawicki 2022
     </footer>
   </div>
+  
+  
+  
 </main>
   </body>
 </html>
