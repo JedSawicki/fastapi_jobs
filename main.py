@@ -2,7 +2,6 @@ from typing import Optional, List
 from pydantic import Json
 
 import uvicorn
-import random
 from fastapi import FastAPI, HTTPException, Request, Form
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -43,12 +42,12 @@ async def fetch_offers():
     return db
 
 
-@app.get("/form", response_class=HTMLResponse)
+@app.get("/scraper", response_class=HTMLResponse)
 async def get_form(request: Request):
     return templates.TemplateResponse('item.html', {"request": request})
 
 
-@app.post("/form", response_class=HTMLResponse)
+@app.post("/scraper", response_class=HTMLResponse)
 async def post_from(request: Request, key_words: str = Form(...)):
     key_list = []
     keys = key_words.split()
@@ -58,11 +57,7 @@ async def post_from(request: Request, key_words: str = Form(...)):
     while len(key_list) != 4:
         key_list.append(None)
     try:
-        linkedin_offers = scrapy.linkedin_worker(key_list[0], key_list[1], key_list[2])
-        nofluff_offers = scrapy.no_fluff_jobs_worker(key_list[0], key_list[1], key_list[2])
-        indeed_offers = scrapy.indeed_jobs_worker(key_list[0], key_list[1], key_list[2])
-        offers = indeed_offers + nofluff_offers + linkedin_offers
-        random.shuffle(offers)
+        offers = scrapy.grand_scraper(key_list[0], key_list[1], key_list[2])
         
     except IndexError:
         print('Index ERROR')

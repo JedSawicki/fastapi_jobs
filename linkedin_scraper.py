@@ -1,5 +1,6 @@
 from typing import Optional
-
+import time
+import random
 from requests_html import HTMLSession
 
 
@@ -89,15 +90,27 @@ class Scraper:
                 items = j.find('a.tapItem')
                 # elements for text
                 for idx, elem in enumerate(items):
-                    href = 'https://pl.indeed.com' + elem.attrs['href']
-                    name = j.find('h2.jobTitle')[idx].text.strip()
-                    item = {'name': name, 'company_name': None, 'href': href, 'offer_root': 'Indeed'}
+                    item = {'name': j.find('h2.jobTitle')[idx].text.strip(), 
+                            'company_name': j.find('span.companyName')[idx].text.strip(), 
+                            'href': 'https://pl.indeed.com' + elem.attrs['href'], 
+                            'location': j.find('div.companyLocation')[idx].text.strip(),
+                            'offer_root': 'Indeed'}
                     urllist.append(item)
         except IndexError:
-            print('No text found')
+            print('index error!')
         return urllist
-        
-
+    
+    def grand_scraper(self, technology: str, seniority: Optional[str], second_tech: Optional[str]) -> object:
+        print("Scraping...")
+        start = time.time()
+        linkedin_offers = self.linkedin_worker(technology, seniority, second_tech)
+        nofluff_offers = self.no_fluff_jobs_worker(technology, seniority, second_tech)
+        indeed_offers = self.indeed_jobs_worker(technology, seniority, second_tech)
+        end = time.time()
+        offers = (indeed_offers + nofluff_offers + linkedin_offers)
+        random.shuffle(offers)
+        print(f'Scrap time: {end -start}')
+        return offers
 
 jobs = Scraper()
 
