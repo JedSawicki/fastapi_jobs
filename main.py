@@ -1,6 +1,6 @@
 from typing import Optional, List
 from pydantic import Json
-
+import random
 import uvicorn
 from fastapi import FastAPI, HTTPException, Request, Form
 from fastapi.responses import HTMLResponse
@@ -38,6 +38,10 @@ async def read_items(request: Request, technology: str, seniority: Optional[str]
     return db
 
 @app.get('/get/db')
+async def fetch_offers():
+    return db
+
+@app.get('/get/jooble')
 async def fetch_offers():
     return db
 

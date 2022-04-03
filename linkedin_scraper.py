@@ -99,6 +99,37 @@ class Scraper:
         except IndexError:
             print('index error!')
         return urllist
+
+    def jooble_jobs_worker(self, key1: str, key2: Optional[str], key3: Optional[str]) -> object:
+        keys_array = [key1, key2, key3]
+        experimental_domain = f'https://pl.jooble.org/SearchResult?ukw={key1}'
+        for key in keys_array[1:]:
+            if key is not None:
+                experimental_domain = experimental_domain + f'%20{key}'
+        print(experimental_domain)
+        s = HTMLSession()
+        r = s.get(str(experimental_domain))
+        urllist = []
+
+        try:
+            jobs = r.html.find('div._5d258')
+
+            for j in jobs:
+                # a for hrefs
+                items = j.find('article')
+                # elements for text
+                for idx, elem in enumerate(items):
+                    (href, ) = j.find('a')[idx].absolute_links
+                    item = { 'href': href, 
+                            'name': j.find('a')[idx].text.strip(),
+                            'company_name': j.find('div.efaa8')[idx].text.strip(),
+                            'location': j.find('div._88a24')[idx].text.strip(),
+                            'offer_root': 'Jooble'}
+                    urllist.append(item)
+        except IndexError:
+            print('index error!')
+            
+        return urllist
     
     def grand_scraper(self, technology: str, seniority: Optional[str], second_tech: Optional[str]) -> object:
         print("Scraping...")
@@ -106,12 +137,13 @@ class Scraper:
         linkedin_offers = self.linkedin_worker(technology, seniority, second_tech)
         nofluff_offers = self.no_fluff_jobs_worker(technology, seniority, second_tech)
         indeed_offers = self.indeed_jobs_worker(technology, seniority, second_tech)
+        jooble_offers = self.jooble_jobs_worker(technology, seniority, second_tech)
         end = time.time()
-        offers = (indeed_offers + nofluff_offers + linkedin_offers)
+        offers = (indeed_offers + nofluff_offers + linkedin_offers + jooble_offers)
         random.shuffle(offers)
         print(f'Scrap time: {end -start}')
         return offers
 
-jobs = Scraper()
+# jobs = Scraper()
 
-# jobs.no_fluff_jobs_worker()
+# jobs.jooble_jobs_worker()
