@@ -8,7 +8,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from models import Offer
 
-from linkedin_scraper import Scraper
+from scraper import Scraper
 
 app = FastAPI()
 scrapy = Scraper()
@@ -24,8 +24,8 @@ async def root(request: Request):
     return templates.TemplateResponse('index.html', {"request": request})
 
 
-@app.get("/get/offers")
-async def read_items(request: Request, technology: str, seniority: Optional[str] = None, second_tech: Optional[str] = None):
+@app.post("/scraper/post/offers")
+async def write_offers(request: Request, technology: str, seniority: Optional[str] = None, second_tech: Optional[str] = None):
     linkedin_offers = scrapy.linkedin_worker(technology, seniority, second_tech)
     nofluff_offers = scrapy.no_fluff_jobs_worker(technology, seniority, second_tech)
     indeed_offers = scrapy.indeed_jobs_worker(technology, seniority, second_tech)
@@ -37,27 +37,60 @@ async def read_items(request: Request, technology: str, seniority: Optional[str]
 
     return db
 
-@app.get('/get/db')
+@app.get('/scraper/get/offers')
 async def fetch_offers():
-    return db
-
-@app.get('/get/jooble')
-async def fetch_offers():
-    return db
-
-
-@app.get("/scraper", response_class=HTMLResponse)
-async def get_form(request: Request):
-    return templates.TemplateResponse('item.html', {"request": request})
+    if len(db):
+        return db
+    else:
+       raise HTTPException(status_code=404, detail="Items not found") 
 
 
-@app.post("/scraper", response_class=HTMLResponse)
-async def post_from(request: Request, key_words: str = Form(...)):
+@app.get('/scraper/get/jooble')
+async def fetch_offers_jooble(technology: str, seniority: Optional[str] = None, second_tech: Optional[str] = None):
+    jooble_offers = scrapy.jooble_jobs_worker(technology, seniority, second_tech)
+    
+    return jooble_offers
+
+@app.post("/scraper/post/jooble", response_class=HTMLResponse)
+async def post_form_jooble(request: Request, key_words: str = Form(...)):
     key_list = []
     keys = key_words.split()
     for key in keys:
         if key is not None:
             key_list.append(key)
+    while len(key_list) != 4:
+        key_list.append(None) 
+    try:
+        jooble_offers = scrapy.jooble_jobs_worker(key_words[0], key_words[1], key_words[2])
+        
+    except IndexError:
+        print('Index ERROR')
+        raise HTTPException(status_code=404, detail="Items not found")
+       
+    
+    return templates.TemplateResponse('item.html', {"request": request, "offers": jooble_offers})
+
+
+@app.get('/scraper/get/linkedin')
+async def fetch_offers_jooble(technology: str, seniority: Optional[str] = None, second_tech: Optional[str] = None):
+    linkedin_offers = scrapy.linkedin_worker(technology, seniority, second_tech)
+    
+    return linkedin_offers
+
+
+
+
+@app.get("/scraper", response_class=HTMLResponse)
+async def get_form_scraper(request: Request):
+    return templates.TemplateResponse('item.html', {"request": request})
+
+
+@app.post("/scraper", response_class=HTMLResponse)
+async def post_form_scraper(request: Request, key_words: str = Form(...)):
+    key_list = []
+    keys = key_words.split()
+    for key in keys:
+        key_list.append(key)
     while len(key_list) != 4:
         key_list.append(None)
     try:
@@ -68,7 +101,7 @@ async def post_from(request: Request, key_words: str = Form(...)):
         raise HTTPException(status_code=404, detail="Items not found")
        
     
-    return templates.TemplateResponse('item.html', {"request": request, "offers": offers}  )
+    return templates.TemplateResponse('item.html', {"request": request, "offers": offers})
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8000)
