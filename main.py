@@ -6,6 +6,7 @@ from fastapi import FastAPI, HTTPException, Request, Form
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from fastapi import FastAPI, Request, status
 from models import Offer
 
 from scraper import Scraper
@@ -71,11 +72,11 @@ async def post_form_jooble(request: Request, key_words: str = Form(...)):
     return templates.TemplateResponse('item.html', {"request": request, "offers": jooble_offers})
 
 
-@app.get('/scraper/get/linkedin')
-async def fetch_offers_jooble(technology: str, seniority: Optional[str] = None, second_tech: Optional[str] = None):
-    linkedin_offers = scrapy.linkedin_worker(technology, seniority, second_tech)
+@app.get('/scraper/get/indeed')
+async def fetch_offers_indeed(technology: str, seniority: Optional[str] = None, second_tech: Optional[str] = None):
+    indeed_offers = scrapy.indeed_jobs_worker(technology, seniority, second_tech)
     
-    return linkedin_offers
+    return indeed_offers
 
 
 
@@ -86,7 +87,7 @@ async def get_form_scraper(request: Request):
 
 
 @app.post("/scraper", response_class=HTMLResponse)
-async def post_form_scraper(request: Request, key_words: str = Form(...)):
+async def post_form_scraper(request: Request, key_words: str = Form("job")):
     key_list = []
     keys = key_words.split()
     for key in keys:
@@ -95,11 +96,11 @@ async def post_form_scraper(request: Request, key_words: str = Form(...)):
         key_list.append(None)
     try:
         offers = scrapy.grand_scraper(key_list[0], key_list[1], key_list[2])
-        
+        if not len(offers):
+            raise IndexError
     except IndexError:
-        print('Index ERROR')
         raise HTTPException(status_code=404, detail="Items not found")
-       
+    
     
     return templates.TemplateResponse('item.html', {"request": request, "offers": offers})
 
