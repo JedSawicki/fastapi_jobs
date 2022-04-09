@@ -2,6 +2,8 @@ from typing import Optional
 import time
 import random
 from requests_html import HTMLSession
+import concurrent
+from concurrent.futures import wait
 
 
 class Scraper:
@@ -152,16 +154,23 @@ class Scraper:
     
     def grand_scraper(self, technology: str, seniority: Optional[str] = None, second_tech: Optional[str] = None) -> object:
         print("Scraping...")
+        threads = [self.linkedin_worker, self.no_fluff_jobs_worker, self.indeed_jobs_worker, self.jooble_jobs_worker]
+        results = []
         start = time.time()
-        linkedin_offers = self.linkedin_worker(technology, seniority, second_tech)
-        nofluff_offers = self.no_fluff_jobs_worker(technology, seniority, second_tech)
-        indeed_offers = self.indeed_jobs_worker(technology, seniority, second_tech)
-        jooble_offers = self.jooble_jobs_worker(technology, seniority, second_tech)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
+            futures = []
+            for idx, t in enumerate(threads):
+                futures.append(executor.submit(t, technology, seniority, second_tech))
+            wait(futures)
+            for future in concurrent.futures.as_completed(futures):
+                result = future.result()
+                results += result
         end = time.time()
-        offers = (indeed_offers + nofluff_offers + linkedin_offers + jooble_offers)
-        random.shuffle(offers)
+        
+        # print(results)
         print(f'Scrap time: {end -start}')
-        return offers
+        random.shuffle(results)
+        return results
 
 # jobs = Scraper()
 
