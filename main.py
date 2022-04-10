@@ -77,7 +77,11 @@ async def fetch_offers_jooble(technology: str, seniority: Optional[str] = None, 
     
     return linkedin_offers
 
-
+@app.get('/scraper/get/jobted')
+async def fetch_offers_jooble(technology: str, seniority: Optional[str] = None, second_tech: Optional[str] = None):
+    jobted_offers = scrapy.jobted_jobs_worker(technology, seniority, second_tech)
+    
+    return jobted_offers
 
 
 @app.get("/scraper", response_class=HTMLResponse)
