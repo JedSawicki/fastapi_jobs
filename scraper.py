@@ -167,13 +167,13 @@ class Scraper:
             jobs = r.html.find('div.res-list')
             for j in jobs:
                 # a for hrefs
-                items = j.find('div.res-item')
+                items = j.find('div.res-item-info')
                 if len(items):
                     # elements for text
                     for idx, elem in enumerate(items):
                         (href, ) = j.find('a.res-link-job')[idx].absolute_links
                         item = { 
-                                'name': j.find('div.res-item-job')[idx].text.strip(),
+                                'name': j.find('span.res-data-title')[idx].text.strip(),
                                 'location': j.find('span.res-data-location')[idx].text.strip(),
                                 'company': j.find('span.res-data-company')[idx].text.strip(),
                                 'href': href,
@@ -189,7 +189,7 @@ class Scraper:
     
     def grand_scraper(self, technology: str, seniority: Optional[str] = None, second_tech: Optional[str] = None) -> object:
         print("Scraping...")
-        threads = [self.linkedin_worker, self.no_fluff_jobs_worker, self.indeed_jobs_worker, self.jooble_jobs_worker, self.jobted_jobs_worker]
+        threads = [self.linkedin_worker, self.no_fluff_jobs_worker, self.jobted_jobs_worker, self.indeed_jobs_worker, self.jooble_jobs_worker]
         results = []
         start = time.time()
         with concurrent.futures.ThreadPoolExecutor(max_workers=4) as executor:
