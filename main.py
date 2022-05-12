@@ -26,11 +26,15 @@ async def root(request: Request):
 
 @app.post("/scraper/post/offers")
 async def write_offers(request: Request, technology: str, seniority: Optional[str] = None, second_tech: Optional[str] = None):
-    linkedin_offers = scrapy.linkedin_worker(technology, seniority, second_tech)
-    nofluff_offers = scrapy.no_fluff_jobs_worker(technology, seniority, second_tech)
-    indeed_offers = scrapy.indeed_jobs_worker(technology, seniority, second_tech)
-    offers = indeed_offers + nofluff_offers + linkedin_offers
-    random.shuffle(offers)
+    key_list = [technology, seniority, second_tech]
+    while len(key_list) != 4:
+        key_list.append(None)
+    try:
+        offers = scrapy.grand_scraper(key_list[0], key_list[1], key_list[2])
+        
+    except IndexError:
+        print('Index ERROR')
+        raise HTTPException(status_code=404, detail="Items not found")
     
     for elem in offers:
         db.append(elem)
@@ -51,28 +55,14 @@ async def fetch_offers_jooble(technology: str, seniority: Optional[str] = None, 
     
     return jooble_offers
 
-@app.post("/scraper/post/jooble", response_class=HTMLResponse)
-async def post_form_jooble(request: Request, key_words: str = Form(...)):
-    key_list = []
-    keys = key_words.split()
-    for key in keys:
-        if key is not None:
-            key_list.append(key)
-    while len(key_list) != 4:
-        key_list.append(None) 
-    try:
-        jooble_offers = scrapy.jooble_jobs_worker(key_words[0], key_words[1], key_words[2])
-        
-    except IndexError:
-        print('Index ERROR')
-        raise HTTPException(status_code=404, detail="Items not found")
-       
+@app.get('/scraper/get/indeed')
+async def fetch_offers_indeed(technology: str, seniority: Optional[str] = None, second_tech: Optional[str] = None):
+    indeed_offers = scrapy.indeed_jobs_worker(technology, seniority, second_tech)
     
-    return templates.TemplateResponse('item.html', {"request": request, "offers": jooble_offers})
-
+    return indeed_offers
 
 @app.get('/scraper/get/linkedin')
-async def fetch_offers_jooble(technology: str, seniority: Optional[str] = None, second_tech: Optional[str] = None):
+async def fetch_offers_linkedin(technology: str, seniority: Optional[str] = None, second_tech: Optional[str] = None):
     linkedin_offers = scrapy.linkedin_worker(technology, seniority, second_tech)
     
     return linkedin_offers
@@ -83,6 +73,11 @@ async def fetch_offers_jooble(technology: str, seniority: Optional[str] = None, 
     
     return jobted_offers
 
+@app.get('/scraper/get/nofluff')
+async def fetch_offers_jooble(technology: str, seniority: Optional[str] = None, second_tech: Optional[str] = None):
+    nofluff_offers = scrapy.no_fluff_jobs_worker(technology, seniority, second_tech)
+    
+    return nofluff_offers
 
 @app.get("/scraper", response_class=HTMLResponse)
 async def get_form_scraper(request: Request):

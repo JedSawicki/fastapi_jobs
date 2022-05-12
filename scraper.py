@@ -21,26 +21,22 @@ class Scraper:
         s = HTMLSession()
         r = s.get(str(experimental_domain))
         urllist = []
-
+        print(r.status_code)
         try:
-            jobs = r.html.find('section.two-pane-serp-page__results-list')
-
+            jobs = r.html.find('ul.jobs-search__results-list')
             for j in jobs:
-                names = j.find('span.screen-reader-text')
-                if len(names):
-                    for idx, name in enumerate(names):
-                        # unpack href set
-                        (href, ) = j.find('a.base-card__full-link')[idx].absolute_links
-                        item = {
-                            'name': j.find('span.screen-reader-text')[idx].text.strip(),
-                            'company_name': j.find('h4.base-search-card__subtitle')[idx].text.strip(),
-                            'href': href,
-                            'location': j.find('span.job-search-card__location')[idx].text.strip(),
-                            'offer_root': 'linkedIn'
-                        }
+                items = j.find('li')
+                for idx, elem in enumerate(items):
+                    if len(items):
+                        href = elem.absolute_links
+                        item = {'name': j.find('h3.base-search-card__title')[idx].text.strip(), 
+                                'company_name': j.find('h4.base-search-card__subtitle')[idx].text.strip(), 
+                                'href': href, 
+                                'location': j.find('span.job-search-card__location')[idx].text.strip(),
+                                'offer_root': 'LinkedIn'}
                         urllist.append(item)
-                else:
-                    raise IndexError
+                    else:
+                        raise IndexError
         except IndexError:
             print('LinkedInWorker - No items found')
 
