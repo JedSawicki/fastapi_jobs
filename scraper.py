@@ -28,7 +28,7 @@ class Scraper:
                 items = j.find('li')
                 for idx, elem in enumerate(items):
                     if len(items):
-                        href = elem.absolute_links
+                        (href, ) = j.find('a')[idx].absolute_links
                         item = {'name': j.find('h3.base-search-card__title')[idx].text.strip(), 
                                 'company_name': j.find('h4.base-search-card__subtitle')[idx].text.strip(), 
                                 'href': href, 
