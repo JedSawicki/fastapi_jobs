@@ -105,7 +105,7 @@ class Scraper:
                     items = j.find('div.job_seen_beacon')
                     # elements for text
                     for idx, elem in enumerate(items):
-                        (href, ) = j.find('a')[idx].absolute_links
+                        (href, ) = j.find('h2')[idx].absolute_links
                         item = {
                                 'name': j.find('h2.jobTitle')[idx].text.strip(), 
                                 'company_name': j.find('span.companyName')[idx].text.strip(), 
